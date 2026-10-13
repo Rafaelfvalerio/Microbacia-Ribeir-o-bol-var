@@ -2,10 +2,10 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Microbacia Ribeirão Bolívar</title>
 <style>
-:root{--color-bg:#faf9f5;--color-panel:#fff;--color-fg:#1f1e1d;--color-fg-muted:#6b6a68;--color-border-line:#e3e1db;--color-ok:#2e7d4f;--color-warn:#b45f06;
---cds-chart-grid:#e3e1db;--cds-chart-muted:#b8b5ad;--cds-dur-slow:.4s;--cds-font-size-body:.95rem;--cds-font-size-caption:.78rem;--cds-font-size-heading:1.15rem;--cds-font-weight-medium:600;
---cds-gap-md:1rem;--cds-gap-xl:2rem;--cds-pad-lg:1.25rem;--cds-radius:10px;--font-anthropic-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--font-anthropic-serif:Georgia,serif}
-@media(prefers-color-scheme:dark){:root{--color-bg:#1f1e1d;--color-panel:#2a2927;--color-fg:#f0eee6;--color-fg-muted:#a8a69f;--color-border-line:#3d3b38;--cds-chart-grid:#3d3b38;--cds-chart-muted:#5c5a55;--color-ok:#6fc28f;--color-warn:#e0a050}}
+:root{--color-bg:#eef6fb;--color-panel:#fff;--color-fg:#14263a;--color-fg-muted:#566b80;--color-border-line:#cfe0ec;--color-ok:#1f7a5a;--color-warn:#b45f06;--tema:#0b4f8a;--tema2:#1ba0d7;
+--cds-chart-grid:#d9e8f2;--cds-chart-muted:#a9bccb;--cds-dur-slow:.4s;--cds-font-size-body:.95rem;--cds-font-size-caption:.78rem;--cds-font-size-heading:1.15rem;--cds-font-weight-medium:600;
+--cds-gap-md:1rem;--cds-gap-xl:2rem;--cds-pad-lg:1.25rem;--cds-radius:6px;--font-anthropic-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--font-anthropic-serif:Georgia,serif}
+@media(prefers-color-scheme:dark){:root{--color-bg:#0f1b27;--color-panel:#172636;--color-fg:#e6f0f8;--color-fg-muted:#9db3c6;--color-border-line:#27405a;--cds-chart-grid:#27405a;--cds-chart-muted:#4d6a85;--tema:#1b6fb5;--color-ok:#6fc28f;--color-warn:#e0a050}}
 body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans)}
 .dash-skeleton{min-height:3rem}
 </style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -14,7 +14,7 @@ body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--co
 (function(){
   var IDS=["bacia", "uso_solo", "solos", "estradas", "produtores", "urts", "pip_resumo", "pip_talhoes", "pip_praticas"], store={}, calcs=[], subs=[];
   window.dash={
-    colors:['#c96442','#4a7c9b','#6b8f4e','#b8860b','#8a5a9e','#3f8f8a','#a0522d','#7a7a7a'],
+    colors:['#0b4f8a','#1ba0d7','#2e8b57','#e0a526','#7a5ea8','#3f8f8a','#8c6d4f','#7a8794'],
     data:function(id){return store[id]?{status:'ok',data:store[id]}:{status:'loading',data:null};},
     onData:function(fn){subs.push(fn);},
     calc:function(id,o){calcs.push({id:id,o:o});}
@@ -34,6 +34,16 @@ body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--co
 <style>
 .pb { max-width: 68rem; margin-inline: auto; display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); }
 .pb * { box-sizing: border-box; }
+
+/* tema azul (cores do modelo 2) com layout institucional (modelo 1) */
+#topo{background:var(--tema);color:#fff;padding:1.4rem 1.5rem;border-radius:6px}
+#topo .pb-eyebrow,#topo .pb-lede{color:#e3f1fb}
+#topo h1{color:#fff}
+.pb-card{border-radius:6px}
+.pb-card.pb-kpi{border-left:5px solid var(--tema2)}
+.pb-kpi .pb-big{color:var(--tema)}
+@media(prefers-color-scheme:dark){.pb-kpi .pb-big{color:#7cc4ee}}
+.pb h2{border-left:4px solid var(--tema2);padding-left:.6rem}
 .pb-eyebrow { margin: 0; font-size: var(--cds-font-size-caption); letter-spacing: .06em; text-transform: uppercase; color: var(--color-fg-muted); }
 .pb h1 { margin: .25rem 0 .5rem; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; text-wrap: balance; }
 .pb-lede { margin: 0; max-width: 46rem; font-size: var(--cds-font-size-body); line-height: 1.55; color: var(--color-fg-muted); }
