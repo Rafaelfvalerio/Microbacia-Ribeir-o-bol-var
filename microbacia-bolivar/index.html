@@ -8,7 +8,8 @@
 @media(prefers-color-scheme:dark){:root{--color-bg:#1f1e1d;--color-panel:#2a2927;--color-fg:#f0eee6;--color-fg-muted:#a8a69f;--color-border-line:#3d3b38;--cds-chart-grid:#3d3b38;--cds-chart-muted:#5c5a55;--color-ok:#6fc28f;--color-warn:#e0a050}}
 body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans)}
 .dash-skeleton{min-height:3rem}
-</style></head><body>
+</style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+</head><body>
 <script>
 (function(){
   var IDS=["bacia", "uso_solo", "solos", "estradas", "produtores", "urts", "pip_resumo", "pip_talhoes", "pip_praticas"], store={}, calcs=[], subs=[];
@@ -84,6 +85,7 @@ body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--co
 .pb-pips { display: grid; gap: var(--cds-gap-md); }
 .pb-pip h4 { margin: var(--cds-gap-md) 0 .4rem; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); letter-spacing: .04em; text-transform: uppercase; color: var(--color-fg-muted); }
 .pb-ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .2rem; font-size: var(--cds-font-size-body); }
+.pb-mapa svg { display: block; width: 100%; max-width: 40rem; height: auto; margin-inline: auto; }
 [data-dash-source-state=empty] { color: transparent; }
 [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 @media (max-width: 30rem) { .pb h1 { font-size: 1.6rem; } .pb-bar { grid-template-columns: 1fr auto; } .pb-bl { grid-column: 1 / -1; } .pb-bt { grid-column: 1; } }
@@ -126,7 +128,13 @@ body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--co
     </div>
   </section>
 
-  <section class="pb-sec" id="urts" aria-labelledby="h-urt">
+    <section class="pb-sec" id="mapa" aria-labelledby="h-mapa">
+    <h2 id="h-mapa">Limite da microbacia</h2>
+    <p class="pb-secnote">Contorno do polígono do Ribeirão Bolívar, a partir do arquivo KMZ da base de dados. A área calculada a partir do contorno é de 3.098,17 ha, próxima dos 3.098,16 ha do roteiro. O campo de nome da feição na base diz "Ivai"; o código Ottobacia e o manancial batem com a microbacia.</p>
+    <div class="pb-card pb-mapa"><div id="mapa-leaflet" style="height:480px;border-radius:var(--cds-radius);overflow:hidden"></div><p class="pb-cap">Imagem de satélite: Esri World Imagery. Contorno da bacia em amarelo.</p></div>
+  </section>
+
+<section class="pb-sec" id="urts" aria-labelledby="h-urt">
     <h2 id="h-urt">URTs</h2>
     <p class="pb-secnote">Unidades de Referência Tecnológica da microbacia. O PIP de cada URT é o Planejamento Integrado da Propriedade. A área é a do imóvel informada no PIP.</p>
     <div class="pb-kpis">
@@ -655,4 +663,17 @@ body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--co
 })();
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var ring=[[-23.70441, -52.65277], [-23.70356, -52.65119], [-23.70199, -52.65038], [-23.69976, -52.64931], [-23.69714, -52.64763], [-23.6946, -52.64619], [-23.69196, -52.64435], [-23.69166, -52.64415], [-23.69012, -52.64315], [-23.68982, -52.64296], [-23.68853, -52.64213], [-23.68666, -52.64123], [-23.68468, -52.64037], [-23.68329, -52.64009], [-23.68123, -52.64013], [-23.681, -52.64014], [-23.67875, -52.64022], [-23.67696, -52.64016], [-23.67488, -52.64004], [-23.67474, -52.64003], [-23.67355, -52.64002], [-23.67221, -52.64], [-23.66964, -52.63997], [-23.66949, -52.63997], [-23.66803, -52.63956], [-23.66649, -52.63914], [-23.66418, -52.63817], [-23.66157, -52.63647], [-23.65967, -52.63476], [-23.65776, -52.63624], [-23.65527, -52.6377], [-23.65233, -52.63924], [-23.64817, -52.64085], [-23.64563, -52.64193], [-23.64545, -52.64201], [-23.64367, -52.64282], [-23.64308, -52.64277], [-23.6426, -52.64272], [-23.6415, -52.64243], [-23.64038, -52.642], [-23.63882, -52.64131], [-23.63778, -52.64095], [-23.63592, -52.64085], [-23.63358, -52.64097], [-23.63099, -52.64109], [-23.62858, -52.64116], [-23.62617, -52.64136], [-23.62565, -52.64141], [-23.62398, -52.64146], [-23.62356, -52.64355], [-23.62298, -52.64555], [-23.62267, -52.64689], [-23.6246, -52.65032], [-23.62681, -52.65344], [-23.62814, -52.65648], [-23.62951, -52.66044], [-23.63181, -52.66261], [-23.63553, -52.66548], [-23.63885, -52.66734], [-23.63963, -52.66796], [-23.64079, -52.66894], [-23.643, -52.67052], [-23.64401, -52.67203], [-23.64502, -52.67381], [-23.64577, -52.67559], [-23.64671, -52.67806], [-23.64908, -52.68022], [-23.65226, -52.68245], [-23.6543, -52.68342], [-23.65565, -52.68493], [-23.65728, -52.68609], [-23.65963, -52.68662], [-23.66138, -52.68758], [-23.66302, -52.68932], [-23.66548, -52.69131], [-23.66796, -52.69261], [-23.67112, -52.69362], [-23.67156, -52.69303], [-23.67217, -52.69224], [-23.67316, -52.69144], [-23.67453, -52.69079], [-23.67571, -52.69039], [-23.6771, -52.68974], [-23.67839, -52.68876], [-23.67933, -52.68749], [-23.67999, -52.68634], [-23.68089, -52.68436], [-23.68104, -52.68397], [-23.68188, -52.68184], [-23.68235, -52.6807], [-23.6828, -52.67969], [-23.68337, -52.67859], [-23.68421, -52.67732], [-23.68491, -52.67652], [-23.68535, -52.67602], [-23.68717, -52.67376], [-23.68879, -52.67165], [-23.69039, -52.66924], [-23.69202, -52.66683], [-23.69351, -52.66496], [-23.69539, -52.66361], [-23.69814, -52.66274], [-23.69964, -52.66231], [-23.70098, -52.66224], [-23.70231, -52.66272], [-23.70324, -52.66185], [-23.7042, -52.66072], [-23.70501, -52.65969], [-23.70572, -52.6587], [-23.70532, -52.65649], [-23.70441, -52.65277]];
+  var map=L.map('mapa-leaflet',{scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+    maxZoom:19,
+    attribution:'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+  }).addTo(map);
+  var poly=L.polygon(ring,{color:'#ffd21f',weight:3,fillColor:'#ffd21f',fillOpacity:0.12}).addTo(map);
+  map.fitBounds(poly.getBounds(),{padding:[20,20]});
+})();
+</script>
 </body></html>
