@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microbacia Ribeirão Bolívar</title>
+<style>
+:root{--color-bg:#faf9f5;--color-panel:#fff;--color-fg:#1f1e1d;--color-fg-muted:#6b6a68;--color-border-line:#e3e1db;--color-ok:#2e7d4f;--color-warn:#b45f06;
+--cds-chart-grid:#e3e1db;--cds-chart-muted:#b8b5ad;--cds-dur-slow:.4s;--cds-font-size-body:.95rem;--cds-font-size-caption:.78rem;--cds-font-size-heading:1.15rem;--cds-font-weight-medium:600;
+--cds-gap-md:1rem;--cds-gap-xl:2rem;--cds-pad-lg:1.25rem;--cds-radius:10px;--font-anthropic-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--font-anthropic-serif:Georgia,serif}
+@media(prefers-color-scheme:dark){:root{--color-bg:#1f1e1d;--color-panel:#2a2927;--color-fg:#f0eee6;--color-fg-muted:#a8a69f;--color-border-line:#3d3b38;--cds-chart-grid:#3d3b38;--cds-chart-muted:#5c5a55;--color-ok:#6fc28f;--color-warn:#e0a050}}
+body{margin:0;padding:1.5rem 1rem 3rem;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans)}
+.dash-skeleton{min-height:3rem}
+</style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+</head><body>
+<script>
+(function(){
+  var IDS=["bacia", "uso_solo", "solos", "estradas", "produtores", "urts", "pip_resumo", "pip_talhoes", "pip_praticas"], store={}, calcs=[], subs=[];
+  window.dash={
+    colors:['#c96442','#4a7c9b','#6b8f4e','#b8860b','#8a5a9e','#3f8f8a','#a0522d','#7a7a7a'],
+    data:function(id){return store[id]?{status:'ok',data:store[id]}:{status:'loading',data:null};},
+    onData:function(fn){subs.push(fn);},
+    calc:function(id,o){calcs.push({id:id,o:o});}
+  };
+  function run(){
+    calcs.forEach(function(c){
+      var args=c.o.inputs.map(function(i){return store[i];});
+      store[c.id]=c.o.fn.apply(null,args);
+    });
+    subs.forEach(function(f){f();});
+  }
+  Promise.all(IDS.map(function(id){return fetch('data/'+id+'.json').then(function(r){return r.json();}).then(function(d){store[id]=d;});}))
+    .then(function(){ window.addEventListener('DOMContentLoaded',run); if(document.readyState!=='loading') run(); });
+})();
+</script>
+<style>
+.pb { max-width: 68rem; margin-inline: auto; display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); }
+.pb * { box-sizing: border-box; }
+.pb-eyebrow { margin: 0; font-size: var(--cds-font-size-caption); letter-spacing: .06em; text-transform: uppercase; color: var(--color-fg-muted); }
+.pb h1 { margin: .25rem 0 .5rem; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; text-wrap: balance; }
+.pb-lede { margin: 0; max-width: 46rem; font-size: var(--cds-font-size-body); line-height: 1.55; color: var(--color-fg-muted); }
+.pb-lede b, .pb-kpi b { font-weight: 500; color: inherit; }
+.pb h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.pb-sec { display: grid; gap: var(--cds-gap-md); }
+.pb-secnote { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; max-width: 46rem; }
+.pb-kpis { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+.pb-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.pb-card h3 { margin: 0 0 .15rem; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+.pb-card p.pb-cap { margin: 0 0 var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pb-kpi { display: grid; align-content: start; gap: .25rem; }
+.pb-kpi .pb-big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 2.1rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.pb-kpi .pb-unit { font-size: var(--cds-font-size-body); color: var(--color-fg-muted); margin-left: .2rem; }
+.pb-kpi .pb-lab { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.4; }
+.pb-grid2 { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.pb-bars { display: grid; gap: .6rem; min-height: 4rem; }
+.pb-bar { display: grid; grid-template-columns: minmax(6.5rem, 10.5rem) 1fr auto; gap: .6rem; align-items: center; font-size: var(--cds-font-size-caption); }
+.pb-bl { color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.pb-bt { height: .85rem; border-radius: 999px; background: var(--cds-chart-grid); overflow: hidden; }
+.pb-bf { display: block; height: 100%; border-radius: 999px; }
+.pb-bv { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.pb-stack { display: flex; height: 1.4rem; border-radius: 999px; overflow: hidden; gap: 2px; min-height: 1.4rem; }
+.pb-stack span { display: block; height: 100%; }
+.pb-stackleg { display: grid; gap: .35rem; margin-top: .75rem; font-size: var(--cds-font-size-caption); }
+.pb-stackleg div { display: flex; gap: .5rem; align-items: center; }
+.pb-stackleg i { width: .7rem; height: .7rem; border-radius: 50%; flex: none; }
+.pb-stackleg span:last-child { margin-left: auto; font-variant-numeric: tabular-nums; }
+.pb-dl { display: grid; gap: 0; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); margin: 0; }
+.pb-dl div { padding: .55rem 0; border-bottom: 1px solid var(--color-border-line); min-width: 0; }
+.pb-dl dt { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pb-dl dd { margin: .1rem 0 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.pb-tablebox { max-height: 26rem; overflow: auto; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.pb table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.pb th, .pb td { text-align: left; padding: .45rem .7rem; border-bottom: 1px solid var(--color-border-line); }
+.pb th { position: sticky; top: 0; background: var(--color-panel); font-weight: var(--cds-font-weight-medium); z-index: 1; }
+.pb th.num, .pb td.num { text-align: right; }
+.pb td.nm { overflow-wrap: anywhere; min-width: 12rem; }
+.pb-sort { all: unset; cursor: pointer; display: inline-flex; gap: .25rem; align-items: center; }
+.pb-sort:focus-visible, .pb-search:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.pb-sort[data-dir]::after { content: "↑"; font-size: .8em; }
+.pb-sort[data-dir="-1"]::after { content: "↓"; }
+.pb-search { width: 100%; max-width: 20rem; padding: .5rem .7rem; font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.pb-tools { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; justify-content: space-between; margin-bottom: var(--cds-gap-md); }
+.pb-count { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pb-pill { display: inline-block; padding: .1rem .55rem; border: 1px solid currentColor; border-radius: 999px; font-size: var(--cds-font-size-caption); white-space: nowrap; }
+.pb-pill.ok { color: var(--color-ok); }
+.pb-pill.warn { color: var(--color-warn); }
+#t-urts td { vertical-align: top; }
+.pb-pips { display: grid; gap: var(--cds-gap-md); }
+.pb-pip h4 { margin: var(--cds-gap-md) 0 .4rem; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); letter-spacing: .04em; text-transform: uppercase; color: var(--color-fg-muted); }
+.pb-ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .2rem; font-size: var(--cds-font-size-body); }
+.pb-mapa svg { display: block; width: 100%; max-width: 40rem; height: auto; margin-inline: auto; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (max-width: 30rem) { .pb h1 { font-size: 1.6rem; } .pb-bar { grid-template-columns: 1fr auto; } .pb-bl { grid-column: 1 / -1; } .pb-bt { grid-column: 1; } }
+</style>
+
+<div class="pb">
+  <header id="topo">
+    <p class="pb-eyebrow">Programa Água Segura · Cianorte, Paraná</p>
+    <h1>Microbacia do Ribeirão Bolívar</h1>
+    <p class="pb-lede">
+      A bacia tem <b><span data-source="bacia" data-field="area_ha" data-row="0" data-fmt="n2">—</span> ha</b>.
+      Pastagens ocupam <b><span data-source="uso_solo" data-field="pct" data-where="classe=Pastagens" data-fmt="n2">—</span>%</b> da área,
+      e o roteiro lista <b><span data-source="totais" data-field="n" data-row="0" data-fmt="n0">—</span> produtores</b>,
+      dos quais <b><span data-source="totais" data-field="sem_area" data-row="0" data-fmt="n0">—</span></b> ainda sem área registrada.
+    </p>
+  </header>
+
+  <section class="pb-sec" id="visao-geral" aria-labelledby="h-visao">
+    <h2 id="h-visao">Visão geral</h2>
+    <div class="pb-kpis">
+      <div class="pb-card pb-kpi"><span class="pb-lab">Área da microbacia</span><span><span class="pb-big" data-source="bacia" data-field="area_ha" data-row="0" data-fmt="n2">—</span><span class="pb-unit">ha</span></span><span class="pb-lab">Módulo fiscal de <span data-source="bacia" data-field="modulo_fiscal_ha" data-row="0" data-fmt="n0">—</span> ha</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Mata nativa</span><span><span class="pb-big" data-source="uso_solo" data-field="pct" data-where="classe=Mata nativa" data-fmt="n2">—</span><span class="pb-unit">%</span></span><span class="pb-lab"><span data-source="uso_solo" data-field="area_ha" data-where="classe=Mata nativa" data-fmt="n2">—</span> ha de cobertura nativa</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Estradas na bacia</span><span><span class="pb-big" data-source="bacia" data-field="estradas_km" data-row="0" data-fmt="n2">—</span><span class="pb-unit">km</span></span><span class="pb-lab">Municipais e carreadores particulares</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Altitude</span><span><span class="pb-big" data-source="bacia" data-field="alt_min_m" data-row="0" data-fmt="n0">—</span><span class="pb-unit">a</span> <span class="pb-big" data-source="bacia" data-field="alt_max_m" data-row="0" data-fmt="n0">—</span><span class="pb-unit">m</span></span><span class="pb-lab">Da captação ao topo dos divisores</span></div>
+    </div>
+
+    <div class="pb-card">
+      <h3>Identificação</h3>
+      <p class="pb-cap">Dados do item 1 do roteiro.</p>
+      <dl class="pb-dl">
+        <div><dt>Município</dt><dd data-source="bacia" data-field="municipio" data-row="0" data-fmt="txt">—</dd></div>
+        <div><dt>Microbacia</dt><dd data-source="bacia" data-field="microbacia" data-row="0" data-fmt="txt">—</dd></div>
+        <div><dt>Código Ottobacia</dt><dd data-source="bacia" data-field="ottobacia" data-row="0" data-fmt="txt">—</dd></div>
+        <div><dt>IDHM do município</dt><dd data-source="bacia" data-field="idhm" data-row="0" data-fmt="n3">—</dd></div>
+        <div><dt>Latitude</dt><dd data-source="bacia" data-field="latitude" data-row="0" data-fmt="txt">—</dd></div>
+        <div><dt>Longitude</dt><dd data-source="bacia" data-field="longitude" data-row="0" data-fmt="txt">—</dd></div>
+        <div><dt>Chuva mensal média, mínima (junho), mm</dt><dd data-source="bacia" data-field="precip_min_mm" data-row="0" data-fmt="n0">—</dd></div>
+        <div><dt>Chuva mensal média, máxima (fevereiro), mm</dt><dd data-source="bacia" data-field="precip_max_mm" data-row="0" data-fmt="n0">—</dd></div>
+      </dl>
+    </div>
+  </section>
+
+    <section class="pb-sec" id="mapa" aria-labelledby="h-mapa">
+    <h2 id="h-mapa">Limite da microbacia</h2>
+    <p class="pb-secnote">Contorno do polígono do Ribeirão Bolívar, a partir do arquivo KMZ da base de dados. A área calculada a partir do contorno é de 3.098,17 ha, próxima dos 3.098,16 ha do roteiro. O campo de nome da feição na base diz "Ivai"; o código Ottobacia e o manancial batem com a microbacia.</p>
+    <div class="pb-card pb-mapa"><div id="mapa-leaflet" style="height:480px;border-radius:var(--cds-radius);overflow:hidden"></div><p class="pb-cap">Imagem de satélite: Esri World Imagery. Contorno da bacia em amarelo.</p></div>
+  </section>
+
+<section class="pb-sec" id="urts" aria-labelledby="h-urt">
+    <h2 id="h-urt">URTs</h2>
+    <p class="pb-secnote">Unidades de Referência Tecnológica da microbacia. O PIP de cada URT é o Planejamento Integrado da Propriedade. A área é a do imóvel informada no PIP.</p>
+    <div class="pb-kpis">
+      <div class="pb-card pb-kpi"><span class="pb-lab">URTs definidas</span><span><span class="pb-big" data-source="urt_totais" data-field="n" data-row="0" data-fmt="n0">—</span></span><span class="pb-lab">Imóveis de referência na bacia</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">PIPs recebidos</span><span><span class="pb-big" data-source="urt_totais" data-field="pip_recebido" data-row="0" data-fmt="n0">—</span></span><span class="pb-lab"><span data-source="urt_totais" data-field="pip_pendente" data-row="0" data-fmt="n0">—</span> pendentes</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Termos de adesão assinados</span><span><span class="pb-big" data-source="urt_totais" data-field="termos" data-row="0" data-fmt="n0">—</span></span><span class="pb-lab">Autorizam o planejamento da propriedade</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Área das URTs com PIP</span><span><span class="pb-big" data-source="urt_totais" data-field="area_ha" data-row="0" data-fmt="n2">—</span><span class="pb-unit">ha</span></span><span class="pb-lab">Soma dos imóveis já planejados</span></div>
+    </div>
+    <div class="pb-card">
+      <h3>Situação por URT</h3>
+      <p class="pb-cap">Imóveis sem PIP no material recebido aparecem como pendentes.</p>
+      <div class="pb-tablebox" style="max-height:none">
+        <table id="t-urts" data-source="urts" data-row-key="id">
+          <thead><tr>
+            <th data-field="produtor">URT</th>
+            <th data-field="imovel">Imóvel</th>
+            <th data-field="estrada">Estrada</th>
+            <th data-field="atividades">Atividades</th>
+            <th class="num" data-field="area_ha">Área (ha)</th>
+            <th data-field="visita_pip">Visita do PIP</th>
+            <th data-field="pip">PIP</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-sec" id="pips" aria-labelledby="h-pip">
+    <h2 id="h-pip">PIPs</h2>
+    <p class="pb-secnote">Planejamento Integrado das Propriedades recebidos até agora. Os valores são a previsão consensuada com o produtor, com fonte de recursos informada como Programa Água Segura. A continuidade depende da seleção no programa e do Termo de Compromisso. Os talhões de a URT não trazem área no quadro, então usei as áreas do croqui. No PIP de o produtor, croqui e quadro divergem na área da cana, e usei a do quadro. Em o produtor o produtor, a soma dos talhões (3,82 ha) passa um pouco da área do CAR (3,76 ha), e os três principais problemas e a Reserva Legal ficaram em branco no PIP.</p>
+    <div class="pb-kpis">
+      <div class="pb-card pb-kpi"><span class="pb-lab">PIPs analisados</span><span><span class="pb-big" data-source="pip_totais" data-field="pips" data-row="0" data-fmt="n0">—</span></span><span class="pb-lab">Com <span data-source="pip_totais" data-field="talhoes" data-row="0" data-fmt="n0">—</span> talhões mapeados</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Investimento previsto</span><span><span class="pb-big" data-source="pip_totais" data-field="valor_total" data-row="0" data-fmt="brl">—</span></span><span class="pb-lab">Soma das práticas propostas</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Previsto até 2028</span><span><span class="pb-big" data-source="pip_totais" data-field="v2028" data-row="0" data-fmt="brl">—</span></span><span class="pb-lab">Até 2030: <span data-source="pip_totais" data-field="v2030" data-row="0" data-fmt="brl">—</span></span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Talhões com erosão laminar</span><span><span class="pb-big" data-source="pip_totais" data-field="talhoes_erosao" data-row="0" data-fmt="n0">—</span></span><span class="pb-lab">Escoamento superficial aparece em todos os PIPs</span></div>
+    </div>
+    <div class="pb-grid2">
+      <div class="pb-card"><h3>Investimento por tipo de prática</h3><p class="pb-cap">Soma dos PIPs recebidos.</p><div class="pb-bars dash-skeleton" id="c-pip-tipo" data-source="pip_por_tipo"></div></div>
+      <div class="pb-card"><h3>Investimento por URT</h3><p class="pb-cap">Total previsto em cada PIP.</p><div class="pb-bars dash-skeleton" id="c-pip-urt" data-source="pip_valor_urt"></div></div>
+      <div class="pb-card"><h3>Cronograma</h3><p class="pb-cap">Valor previsto por prazo de execução.</p><div class="pb-bars dash-skeleton" id="c-pip-prazo" data-source="pip_por_prazo"></div></div>
+    </div>
+    <div class="pb-pips">
+    <div class="pb-card pb-pip" id="pip-2">
+      <h3 data-source="pip_resumo" data-field="urt" data-where="urt_id=2" data-fmt="txt">—</h3>
+      <p class="pb-cap"><span data-source="pip_resumo" data-field="imovel" data-where="urt_id=2" data-fmt="txt">—</span> · <span data-source="pip_resumo" data-field="area_ha" data-where="urt_id=2" data-fmt="n2">—</span> ha · visita em <span data-source="pip_resumo" data-field="visita" data-where="urt_id=2" data-fmt="date">—</span> · investimento previsto de <b data-source="pip_valor_urt" data-field="valor_total" data-where="urt_id=2" data-fmt="brl">—</b></p>
+      <dl class="pb-dl"><div><dt>Atividade</dt><dd data-source="pip_resumo" data-field="atividades" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Rebanho</dt><dd data-source="pip_resumo" data-field="rebanho" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Carreadores internos</dt><dd data-source="pip_resumo" data-field="carreador" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Água para consumo</dt><dd data-source="pip_resumo" data-field="agua" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Esgoto doméstico</dt><dd data-source="pip_resumo" data-field="esgoto" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>CAR</dt><dd data-source="pip_resumo" data-field="car" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>APPs</dt><dd data-source="pip_resumo" data-field="app" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Reserva legal</dt><dd data-source="pip_resumo" data-field="rl" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Água, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_agua" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Práticas atuais, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_praticas" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Interesse nos próximos dois anos</dt><dd data-source="pip_resumo" data-field="interesses" data-where="urt_id=2" data-fmt="txt">—</dd></div><div><dt>Principal limitação</dt><dd data-source="pip_resumo" data-field="limitacao" data-where="urt_id=2" data-fmt="txt">—</dd></div></dl>
+      <h4>Três principais problemas, segundo o produtor</h4>
+      <ol class="pb-ol"><li data-source="pip_resumo" data-field="prioridade_1" data-where="urt_id=2" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_2" data-where="urt_id=2" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_3" data-where="urt_id=2" data-fmt="txt">—</li></ol>
+      <h4>Talhões</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="2" data-kind="talhoes" data-source="pip_talhoes" data-row-key="id">
+          <thead><tr><th data-field="talhao">Nº</th><th data-field="uso">Uso</th><th class="num" data-field="area_ha">Área (ha)</th><th data-field="solo">Solo</th><th class="num" data-field="declividade">Decliv. (%)</th><th data-field="manejo">Manejo</th><th data-field="erosao">Erosão</th><th data-field="terraceamento">Terraço</th><th class="num" data-field="espacamento_m">Espaç. (m)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h4>Práticas e investimento previsto</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="2" data-kind="praticas" data-source="pip_praticas" data-row-key="id">
+          <thead><tr><th data-field="pratica">Prática</th><th data-field="local">Local</th><th data-field="prazo">Prazo</th><th class="num" data-field="valor">Valor</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pb-card pb-pip" id="pip-3">
+      <h3 data-source="pip_resumo" data-field="urt" data-where="urt_id=3" data-fmt="txt">—</h3>
+      <p class="pb-cap"><span data-source="pip_resumo" data-field="imovel" data-where="urt_id=3" data-fmt="txt">—</span> · <span data-source="pip_resumo" data-field="area_ha" data-where="urt_id=3" data-fmt="n2">—</span> ha · visita em <span data-source="pip_resumo" data-field="visita" data-where="urt_id=3" data-fmt="date">—</span> · investimento previsto de <b data-source="pip_valor_urt" data-field="valor_total" data-where="urt_id=3" data-fmt="brl">—</b></p>
+      <dl class="pb-dl"><div><dt>Atividade</dt><dd data-source="pip_resumo" data-field="atividades" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Rebanho</dt><dd data-source="pip_resumo" data-field="rebanho" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Carreadores internos</dt><dd data-source="pip_resumo" data-field="carreador" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Água para consumo</dt><dd data-source="pip_resumo" data-field="agua" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Esgoto doméstico</dt><dd data-source="pip_resumo" data-field="esgoto" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>CAR</dt><dd data-source="pip_resumo" data-field="car" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>APPs</dt><dd data-source="pip_resumo" data-field="app" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Reserva legal</dt><dd data-source="pip_resumo" data-field="rl" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Água, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_agua" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Práticas atuais, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_praticas" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Interesse nos próximos dois anos</dt><dd data-source="pip_resumo" data-field="interesses" data-where="urt_id=3" data-fmt="txt">—</dd></div><div><dt>Principal limitação</dt><dd data-source="pip_resumo" data-field="limitacao" data-where="urt_id=3" data-fmt="txt">—</dd></div></dl>
+      <h4>Três principais problemas, segundo o produtor</h4>
+      <ol class="pb-ol"><li data-source="pip_resumo" data-field="prioridade_1" data-where="urt_id=3" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_2" data-where="urt_id=3" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_3" data-where="urt_id=3" data-fmt="txt">—</li></ol>
+      <h4>Talhões</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="2" data-kind="talhoes" data-source="pip_talhoes" data-row-key="id">
+          <thead><tr><th data-field="talhao">Nº</th><th data-field="uso">Uso</th><th class="num" data-field="area_ha">Área (ha)</th><th data-field="solo">Solo</th><th class="num" data-field="declividade">Decliv. (%)</th><th data-field="manejo">Manejo</th><th data-field="erosao">Erosão</th><th data-field="terraceamento">Terraço</th><th class="num" data-field="espacamento_m">Espaç. (m)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h4>Práticas e investimento previsto</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="2" data-kind="praticas" data-source="pip_praticas" data-row-key="id">
+          <thead><tr><th data-field="pratica">Prática</th><th data-field="local">Local</th><th data-field="prazo">Prazo</th><th class="num" data-field="valor">Valor</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pb-card pb-pip" id="pip-4">
+      <h3 data-source="pip_resumo" data-field="urt" data-where="urt_id=4" data-fmt="txt">—</h3>
+      <p class="pb-cap"><span data-source="pip_resumo" data-field="imovel" data-where="urt_id=4" data-fmt="txt">—</span> · <span data-source="pip_resumo" data-field="area_ha" data-where="urt_id=4" data-fmt="n2">—</span> ha · visita em <span data-source="pip_resumo" data-field="visita" data-where="urt_id=4" data-fmt="date">—</span> · investimento previsto de <b data-source="pip_valor_urt" data-field="valor_total" data-where="urt_id=4" data-fmt="brl">—</b></p>
+      <dl class="pb-dl"><div><dt>Atividade</dt><dd data-source="pip_resumo" data-field="atividades" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Rebanho</dt><dd data-source="pip_resumo" data-field="rebanho" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Carreadores internos</dt><dd data-source="pip_resumo" data-field="carreador" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Água para consumo</dt><dd data-source="pip_resumo" data-field="agua" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Esgoto doméstico</dt><dd data-source="pip_resumo" data-field="esgoto" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>CAR</dt><dd data-source="pip_resumo" data-field="car" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>APPs</dt><dd data-source="pip_resumo" data-field="app" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Reserva legal</dt><dd data-source="pip_resumo" data-field="rl" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Água, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_agua" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Práticas atuais, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_praticas" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Interesse nos próximos dois anos</dt><dd data-source="pip_resumo" data-field="interesses" data-where="urt_id=4" data-fmt="txt">—</dd></div><div><dt>Principal limitação</dt><dd data-source="pip_resumo" data-field="limitacao" data-where="urt_id=4" data-fmt="txt">—</dd></div></dl>
+      <h4>Três principais problemas, segundo o produtor</h4>
+      <ol class="pb-ol"><li data-source="pip_resumo" data-field="prioridade_1" data-where="urt_id=4" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_2" data-where="urt_id=4" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_3" data-where="urt_id=4" data-fmt="txt">—</li></ol>
+      <h4>Talhões</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="4" data-kind="talhoes" data-source="pip_talhoes" data-row-key="id">
+          <thead><tr><th data-field="talhao">Nº</th><th data-field="uso">Uso</th><th class="num" data-field="area_ha">Área (ha)</th><th data-field="solo">Solo</th><th class="num" data-field="declividade">Decliv. (%)</th><th data-field="manejo">Manejo</th><th data-field="erosao">Erosão</th><th data-field="terraceamento">Terraço</th><th class="num" data-field="espacamento_m">Espaç. (m)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h4>Práticas e investimento previsto</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="4" data-kind="praticas" data-source="pip_praticas" data-row-key="id">
+          <thead><tr><th data-field="pratica">Prática</th><th data-field="local">Local</th><th data-field="prazo">Prazo</th><th class="num" data-field="valor">Valor</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pb-card pb-pip" id="pip-5">
+      <h3 data-source="pip_resumo" data-field="urt" data-where="urt_id=5" data-fmt="txt">—</h3>
+      <p class="pb-cap"><span data-source="pip_resumo" data-field="imovel" data-where="urt_id=5" data-fmt="txt">—</span> · <span data-source="pip_resumo" data-field="area_ha" data-where="urt_id=5" data-fmt="n2">—</span> ha · visita em <span data-source="pip_resumo" data-field="visita" data-where="urt_id=5" data-fmt="date">—</span> · investimento previsto de <b data-source="pip_valor_urt" data-field="valor_total" data-where="urt_id=5" data-fmt="brl">—</b></p>
+      <dl class="pb-dl"><div><dt>Atividade</dt><dd data-source="pip_resumo" data-field="atividades" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Rebanho</dt><dd data-source="pip_resumo" data-field="rebanho" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Carreadores internos</dt><dd data-source="pip_resumo" data-field="carreador" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Água para consumo</dt><dd data-source="pip_resumo" data-field="agua" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Esgoto doméstico</dt><dd data-source="pip_resumo" data-field="esgoto" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>CAR</dt><dd data-source="pip_resumo" data-field="car" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>APPs</dt><dd data-source="pip_resumo" data-field="app" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Reserva legal</dt><dd data-source="pip_resumo" data-field="rl" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Água, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_agua" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Práticas atuais, na visão do produtor</dt><dd data-source="pip_resumo" data-field="percepcao_praticas" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Interesse nos próximos dois anos</dt><dd data-source="pip_resumo" data-field="interesses" data-where="urt_id=5" data-fmt="txt">—</dd></div><div><dt>Principal limitação</dt><dd data-source="pip_resumo" data-field="limitacao" data-where="urt_id=5" data-fmt="txt">—</dd></div></dl>
+      <h4>Três principais problemas, segundo o produtor</h4>
+      <ol class="pb-ol"><li data-source="pip_resumo" data-field="prioridade_1" data-where="urt_id=5" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_2" data-where="urt_id=5" data-fmt="txt">—</li><li data-source="pip_resumo" data-field="prioridade_3" data-where="urt_id=5" data-fmt="txt">—</li></ol>
+      <h4>Talhões</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="5" data-kind="talhoes" data-source="pip_talhoes" data-row-key="id">
+          <thead><tr><th data-field="talhao">Nº</th><th data-field="uso">Uso</th><th class="num" data-field="area_ha">Área (ha)</th><th data-field="solo">Solo</th><th class="num" data-field="declividade">Decliv. (%)</th><th data-field="manejo">Manejo</th><th data-field="erosao">Erosão</th><th data-field="terraceamento">Terraço</th><th class="num" data-field="espacamento_m">Espaç. (m)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h4>Práticas e investimento previsto</h4>
+      <div class="pb-tablebox" style="max-height:none">
+        <table data-urt="5" data-kind="praticas" data-source="pip_praticas" data-row-key="id">
+          <thead><tr><th data-field="pratica">Prática</th><th data-field="local">Local</th><th data-field="prazo">Prazo</th><th class="num" data-field="valor">Valor</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <section class="pb-sec" id="uso-solo" aria-labelledby="h-uso">
+    <h2 id="h-uso">Uso do solo, solos e estradas</h2>
+    <div class="pb-grid2">
+      <div class="pb-card">
+        <h3>Uso e ocupação do solo</h3>
+        <p class="pb-cap">Participação de cada classe na área da bacia, em hectares e porcentagem.</p>
+        <div class="pb-bars dash-skeleton" id="c-uso" data-source="uso_solo"></div>
+      </div>
+      <div class="pb-grid2" style="grid-template-columns: 1fr; align-content: start;">
+        <div class="pb-card">
+          <h3>Classes de solo</h3>
+          <p class="pb-cap">Latossolos e Argissolos, hectares.</p>
+          <div class="pb-stack dash-skeleton" id="c-solos" data-source="solos"></div>
+          <div class="pb-stackleg" id="c-solos-leg" data-source="solos"></div>
+        </div>
+        <div class="pb-card">
+          <h3>Estradas</h3>
+          <p class="pb-cap">Extensão por tipo de pavimento, em quilômetros.</p>
+          <div class="pb-bars dash-skeleton" id="c-estradas" data-source="estradas"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-sec" id="fundiaria" aria-labelledby="h-fund">
+    <h2 id="h-fund">Estrutura fundiária</h2>
+    <p class="pb-secnote">Os valores são a área total de cada imóvel como consta no roteiro. Os imóveis podem se estender além dos limites da microbacia, por isso a soma das áreas pode superar a área da bacia. A numeração do roteiro tem saltos, então a contagem de linhas difere do último número da lista.</p>
+    <div class="pb-kpis">
+      <div class="pb-card pb-kpi"><span class="pb-lab">Produtores listados</span><span><span class="pb-big" data-source="totais" data-field="n" data-row="0" data-fmt="n0">—</span></span><span class="pb-lab"><span data-source="totais" data-field="com_area" data-row="0" data-fmt="n0">—</span> com área registrada</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Área registrada dos imóveis</span><span><span class="pb-big" data-source="totais" data-field="soma_ha" data-row="0" data-fmt="n2">—</span><span class="pb-unit">ha</span></span><span class="pb-lab">Soma das áreas informadas</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Área mediana</span><span><span class="pb-big" data-source="totais" data-field="mediana_ha" data-row="0" data-fmt="n2">—</span><span class="pb-unit">ha</span></span><span class="pb-lab">Metade dos imóveis é menor que isso</span></div>
+      <div class="pb-card pb-kpi"><span class="pb-lab">Arrendatários</span><span><span class="pb-big" data-source="totais" data-field="arrendatarios" data-row="0" data-fmt="n0">—</span></span><span class="pb-lab">Os demais constam como proprietários</span></div>
+    </div>
+    <div class="pb-grid2">
+      <div class="pb-card">
+        <h3>Imóveis por faixa de área</h3>
+        <p class="pb-cap">Quantidade de produtores em cada faixa. Um módulo fiscal em Cianorte equivale a 22 ha.</p>
+        <div class="pb-bars dash-skeleton" id="c-faixas" data-source="faixas"></div>
+      </div>
+      <div class="pb-card">
+        <h3>Dez maiores imóveis</h3>
+        <p class="pb-cap">Área registrada e participação na soma dos imóveis com área informada.</p>
+        <div class="pb-tablebox" style="max-height:none">
+          <table id="t-maiores" data-source="maiores" data-row-key="id">
+            <thead><tr><th data-field="nome">Produtor</th><th class="num" data-field="area_ha">Área (ha)</th><th class="num" data-field="pct">% da soma</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-sec" id="produtores" aria-labelledby="h-prod">
+    <h2 id="h-prod">Lista de produtores</h2>
+    <div class="pb-card">
+      <div class="pb-tools">
+        <input class="pb-search" id="q" type="search" placeholder="Buscar por nome" aria-label="Buscar produtor por nome">
+        <span class="pb-count" id="cnt"></span>
+      </div>
+      <div class="pb-tablebox">
+        <table id="t-prod" data-source="produtores" data-row-key="id">
+          <thead><tr>
+            <th data-field="n"><button class="pb-sort" data-k="n" type="button">Nº</button></th>
+            <th data-field="nome"><button class="pb-sort" data-k="nome" type="button">Produtor</button></th>
+            <th class="num" data-field="area_ha"><button class="pb-sort" data-k="area_ha" type="button">Área (ha)</button></th>
+            <th data-field="condicao"><button class="pb-sort" data-k="condicao" type="button">Condição</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="pb-secnote" style="margin-top: var(--cds-gap-md)">Imóveis sem área ficam no fim ao ordenar por área. Fonte: roteiro preenchido da microbacia, item 2.1.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var nf = {
+    n0: new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }),
+    n2: new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    n3: new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }),
+    brl: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+  };
+  var $ = function (s) { return document.querySelector(s); };
+  var state = { key: 'n', dir: 1, q: '' };
+
+  dash.calc('totais', {
+    title: 'Totais dos produtores',
+    description: 'Contagem, soma e mediana das áreas dos imóveis listados.',
+    inputs: ['produtores'],
+    fn: function (produtores) {
+      var a = produtores.filter(function (r) { return r.area_ha != null; }).map(function (r) { return r.area_ha; }).sort(function (x, y) { return x - y; });
+      var soma = a.reduce(function (s, x) { return s + x; }, 0);
+      var m = a.length % 2 ? a[(a.length - 1) / 2] : (a[a.length / 2 - 1] + a[a.length / 2]) / 2;
+      return [{
+        n: produtores.length, com_area: a.length, sem_area: produtores.length - a.length,
+        soma_ha: Math.round(soma * 100) / 100, mediana_ha: m,
+        arrendatarios: produtores.filter(function (r) { return r.condicao === 'ARR'; }).length
+      }];
+    }
+  });
+
+  dash.calc('faixas', {
+    title: 'Imóveis por faixa de área',
+    description: 'Produtores agrupados por área registrada, em faixas de até 5, 10, 22 e 88 ha.',
+    inputs: ['produtores'],
+    fn: function (produtores) {
+      var bins = [
+        { faixa: 'Até 5 ha', ord: 1, lo: 0, hi: 5 },
+        { faixa: '5 a 10 ha', ord: 2, lo: 5, hi: 10 },
+        { faixa: '10 a 22 ha', ord: 3, lo: 10, hi: 22 },
+        { faixa: '22 a 88 ha', ord: 4, lo: 22, hi: 88 },
+        { faixa: 'Mais de 88 ha', ord: 5, lo: 88, hi: Infinity }
+      ];
+      return bins.map(function (b) {
+        var rs = produtores.filter(function (r) { return r.area_ha != null && r.area_ha > b.lo && r.area_ha <= b.hi; });
+        return { faixa: b.faixa, ord: b.ord, produtores: rs.length, area_ha: Math.round(rs.reduce(function (s, r) { return s + r.area_ha; }, 0) * 100) / 100 };
+      });
+    }
+  });
+
+  dash.calc('maiores', {
+    title: 'Dez maiores imóveis',
+    description: 'Os dez maiores imóveis por área registrada e sua participação na soma.',
+    inputs: ['produtores'],
+    fn: function (produtores) {
+      var com = produtores.filter(function (r) { return r.area_ha != null; });
+      var soma = com.reduce(function (s, r) { return s + r.area_ha; }, 0);
+      return com.slice().sort(function (x, y) { return y.area_ha - x.area_ha; }).slice(0, 10)
+        .map(function (r) { return { id: r.id, nome: r.nome, area_ha: r.area_ha, pct: Math.round(r.area_ha / soma * 10000) / 100 }; });
+    }
+  });
+
+  function rowsOf(id) {
+    var d = dash.data(id);
+    return d.status === 'ok' ? d.data : null;
+  }
+
+  function fillMarks() {
+    document.querySelectorAll('[data-fmt]').forEach(function (el) {
+      var rows = rowsOf(el.getAttribute('data-source'));
+      if (!rows) return;
+      var row;
+      if (el.hasAttribute('data-row')) row = rows[Number(el.getAttribute('data-row'))];
+      else {
+        var parts = el.getAttribute('data-where').split('=');
+        var k = decodeURIComponent(parts[0]), v = decodeURIComponent(parts.slice(1).join('='));
+        row = rows.find(function (r) { return String(r[k]) === v; });
+      }
+      if (!row) return;
+      var val = row[el.getAttribute('data-field')];
+      var f = el.getAttribute('data-fmt');
+      el.textContent = val == null ? '—' : f === 'txt' ? String(val) : f === 'date' ? fmtDate(val) : nf[f].format(val);
+    });
+  }
+
+  function bars(el, items) {
+    var max = Math.max.apply(null, items.map(function (i) { return i.value; }).concat([0])) || 1;
+    el.replaceChildren.apply(el, items.map(function (i) {
+      var row = document.createElement('div'); row.className = 'pb-bar';
+      var l = document.createElement('span'); l.className = 'pb-bl'; l.textContent = i.label;
+      var t = document.createElement('span'); t.className = 'pb-bt';
+      var f = document.createElement('span'); f.className = 'pb-bf';
+      f.style.width = Math.max(i.value / max * 100, 1) + '%';
+      f.style.background = i.hi ? dash.colors[0] : 'var(--cds-chart-muted)';
+      t.append(f);
+      var v = document.createElement('span'); v.className = 'pb-bv'; v.textContent = i.text;
+      row.append(l, t, v);
+      return row;
+    }));
+    el.classList.remove('dash-skeleton');
+  }
+
+  function drawCharts() {
+    var uso = rowsOf('uso_solo');
+    if (uso) bars($('#c-uso'), uso.slice().sort(function (a, b) { return b.area_ha - a.area_ha; }).map(function (r) {
+      return { label: r.classe, value: r.area_ha, text: nf.n2.format(r.pct) + '% · ' + nf.n2.format(r.area_ha) + ' ha', hi: r.classe === 'Pastagens' };
+    }));
+    var est = rowsOf('estradas');
+    if (est) bars($('#c-estradas'), est.map(function (r, i) {
+      return { label: r.tipo, value: r.km, text: nf.n2.format(r.km) + ' km', hi: i === 1 };
+    }));
+    var fx = dash.data('faixas');
+    if (fx.status === 'ok') bars($('#c-faixas'), fx.data.map(function (r) {
+      return { label: r.faixa, value: r.produtores, text: nf.n0.format(r.produtores) + ' · ' + nf.n2.format(r.area_ha) + ' ha', hi: r.ord === 1 };
+    }));
+    var sol = rowsOf('solos');
+    if (sol) {
+      var bar = $('#c-solos'), leg = $('#c-solos-leg');
+      bar.replaceChildren.apply(bar, sol.map(function (r, i) {
+        var s = document.createElement('span'); s.style.flex = String(r.area_ha); s.style.background = dash.colors[i]; return s;
+      }));
+      bar.classList.remove('dash-skeleton');
+      leg.replaceChildren.apply(leg, sol.map(function (r, i) {
+        var d = document.createElement('div'), dot = document.createElement('i');
+        dot.style.background = dash.colors[i];
+        var a = document.createElement('span'); a.textContent = r.classe;
+        var b = document.createElement('span'); b.textContent = nf.n2.format(r.area_ha) + ' ha';
+        d.append(dot, a, b); return d;
+      }));
+    }
+  }
+
+  function td(text, cls) { var c = document.createElement('td'); c.textContent = text; if (cls) c.className = cls; return c; }
+
+  function drawMaiores() {
+    var m = dash.data('maiores');
+    if (m.status !== 'ok') return;
+    var body = $('#t-maiores tbody');
+    body.replaceChildren.apply(body, m.data.map(function (r) {
+      var tr = document.createElement('tr'); tr.setAttribute('data-key', String(r.id));
+      tr.append(td(r.nome, 'nm'), td(nf.n2.format(r.area_ha), 'num'), td(nf.n2.format(r.pct) + '%', 'num'));
+      return tr;
+    }));
+  }
+
+  function drawProd() {
+    var rows = rowsOf('produtores');
+    if (!rows) return;
+    var q = state.q.trim().toLowerCase();
+    var list = rows.filter(function (r) { return !q || r.nome.toLowerCase().indexOf(q) >= 0 || String(r.n) === q; });
+    var k = state.key, d = state.dir;
+    list = list.slice().sort(function (a, b) {
+      var x = a[k], y = b[k];
+      if (x == null && y == null) return 0;
+      if (x == null) return 1;
+      if (y == null) return -1;
+      if (typeof x === 'string') return d * x.localeCompare(y, 'pt-BR');
+      return d * (x - y);
+    });
+    var body = $('#t-prod tbody');
+    body.replaceChildren.apply(body, list.map(function (r) {
+      var tr = document.createElement('tr'); tr.setAttribute('data-key', String(r.id));
+      tr.append(td(String(r.n)), td(r.nome, 'nm'), td(r.area_ha == null ? '—' : nf.n2.format(r.area_ha), 'num'), td(r.condicao === 'ARR' ? 'Arrendatário' : 'Proprietário'));
+      return tr;
+    }));
+    $('#cnt').textContent = list.length === rows.length ? nf.n0.format(rows.length) + ' produtores' : nf.n0.format(list.length) + ' de ' + nf.n0.format(rows.length);
+    document.querySelectorAll('#t-prod .pb-sort').forEach(function (b) {
+      if (b.getAttribute('data-k') === k) b.setAttribute('data-dir', String(d)); else b.removeAttribute('data-dir');
+      b.closest('th').setAttribute('aria-sort', b.getAttribute('data-k') === k ? (d === 1 ? 'ascending' : 'descending') : 'none');
+    });
+  }
+
+  document.querySelectorAll('#t-prod .pb-sort').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.getAttribute('data-k');
+      if (state.key === k) state.dir = -state.dir; else { state.key = k; state.dir = 1; }
+      drawProd();
+    });
+  });
+  $('#q').addEventListener('input', function (e) { state.q = e.target.value; drawProd(); });
+
+  dash.calc('urt_totais', {
+    title: 'Totais das URTs',
+    description: 'Contagem de URTs, PIPs recebidos, termos de adesão e área dos imóveis com PIP.',
+    inputs: ['urts'],
+    fn: function (urts) {
+      var rec = urts.filter(function (r) { return r.pip === 'Recebido'; });
+      return [{
+        n: urts.length, pip_recebido: rec.length, pip_pendente: urts.length - rec.length,
+        termos: urts.filter(function (r) { return r.termo_adesao != null; }).length,
+        area_ha: Math.round(rec.reduce(function (s, r) { return s + (r.area_ha || 0); }, 0) * 100) / 100
+      }];
+    }
+  });
+
+  function fmtDate(s) {
+    if (!s) return '—';
+    var p = s.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  function drawUrts() {
+    var rows = rowsOf('urts');
+    if (!rows) return;
+    var body = $('#t-urts tbody');
+    body.replaceChildren.apply(body, rows.map(function (r) {
+      var tr = document.createElement('tr'); tr.setAttribute('data-key', String(r.id));
+      var pill = document.createElement('span');
+      pill.className = 'pb-pill ' + (r.pip === 'Recebido' ? 'ok' : 'warn');
+      pill.textContent = r.pip;
+      var tp = document.createElement('td'); tp.append(pill);
+      tr.append(td(r.produtor, 'nm'), td(r.imovel || '—'), td(r.estrada), td(r.atividades),
+        td(r.area_ha == null ? '—' : nf.n2.format(r.area_ha), 'num'), td(fmtDate(r.visita_pip)), tp);
+      return tr;
+    }));
+  }
+
+  dash.calc('pip_totais', {
+    title: 'Totais dos PIPs',
+    description: 'Investimento previsto por prazo e contagem de talhões nos PIPs recebidos.',
+    inputs: ['pip_praticas', 'pip_talhoes'],
+    fn: function (praticas, talhoes) {
+      var ids = {};
+      praticas.forEach(function (r) { ids[r.urt_id] = 1; });
+      var soma = function (f) { return praticas.filter(f).reduce(function (a, r) { return a + r.valor; }, 0); };
+      return [{
+        pips: Object.keys(ids).length,
+        valor_total: soma(function () { return true; }),
+        v2028: soma(function (r) { return r.prazo === 2028; }),
+        v2030: soma(function (r) { return r.prazo === 2030; }),
+        talhoes: talhoes.length,
+        talhoes_erosao: talhoes.filter(function (r) { return r.erosao === 'EL'; }).length
+      }];
+    }
+  });
+
+  dash.calc('pip_valor_urt', {
+    title: 'Investimento por URT',
+    description: 'Valor previsto em cada PIP, no total e por prazo.',
+    inputs: ['pip_praticas'],
+    fn: function (praticas) {
+      var g = {};
+      praticas.forEach(function (r) {
+        var o = g[r.urt_id] || (g[r.urt_id] = { urt_id: r.urt_id, urt: r.urt, valor_total: 0, v2028: 0, v2030: 0 });
+        o.valor_total += r.valor;
+        if (r.prazo === 2028) o.v2028 += r.valor; else o.v2030 += r.valor;
+      });
+      return Object.keys(g).map(function (k) { return g[k]; });
+    }
+  });
+
+  dash.calc('pip_por_tipo', {
+    title: 'Investimento por tipo de prática',
+    description: 'Soma dos valores previstos agrupados por tipo de prática.',
+    inputs: ['pip_praticas'],
+    fn: function (praticas) {
+      var g = {};
+      praticas.forEach(function (r) { g[r.tipo] = (g[r.tipo] || 0) + r.valor; });
+      return Object.keys(g).map(function (k) { return { tipo: k, valor: g[k] }; }).sort(function (a, b) { return b.valor - a.valor; });
+    }
+  });
+
+  dash.calc('pip_por_prazo', {
+    title: 'Investimento por prazo',
+    description: 'Valor previsto para execução até 2028 e até 2030.',
+    inputs: ['pip_praticas'],
+    fn: function (praticas) {
+      return [2028, 2030].map(function (ano) {
+        return { prazo: 'Até ' + ano, ano: ano, valor: praticas.filter(function (r) { return r.prazo === ano; }).reduce(function (a, r) { return a + r.valor; }, 0) };
+      });
+    }
+  });
+
+  var codes = {
+    manejo: { PC: 'Convencional', PD: 'Plantio direto', CM: 'Cultivo mínimo' },
+    erosao: { NA: 'Não aparente', EL: 'Laminar', ES: 'Em sulco', VO: 'Voçoroca' },
+    terraceamento: { NP: 'Não possui', EM: 'Em nível', ED: 'Em desnível' }
+  };
+
+  function drawPips() {
+    var tipo = dash.data('pip_por_tipo');
+    if (tipo.status === 'ok') bars($('#c-pip-tipo'), tipo.data.map(function (r, i) {
+      return { label: r.tipo, value: r.valor, text: nf.brl.format(r.valor), hi: i === 0 };
+    }));
+    var urt = dash.data('pip_valor_urt');
+    if (urt.status === 'ok') bars($('#c-pip-urt'), urt.data.map(function (r) {
+      return { label: r.urt, value: r.valor_total, text: nf.brl.format(r.valor_total), hi: true };
+    }));
+    var pz = dash.data('pip_por_prazo');
+    if (pz.status === 'ok') bars($('#c-pip-prazo'), pz.data.map(function (r, i) {
+      return { label: r.prazo, value: r.valor, text: nf.brl.format(r.valor), hi: i === 0 };
+    }));
+    var tal = rowsOf('pip_talhoes'), pra = rowsOf('pip_praticas');
+    document.querySelectorAll('table[data-urt]').forEach(function (tb) {
+      var id = Number(tb.getAttribute('data-urt')), kind = tb.getAttribute('data-kind');
+      var body = tb.querySelector('tbody');
+      if (kind === 'talhoes' && tal) {
+        body.replaceChildren.apply(body, tal.filter(function (r) { return r.urt_id === id; }).map(function (r) {
+          var tr = document.createElement('tr'); tr.setAttribute('data-key', String(r.id));
+          tr.append(td(String(r.talhao)), td(r.uso, 'nm'), td(r.area_ha == null ? '—' : nf.n2.format(r.area_ha), 'num'), td(r.solo || '—'),
+            td(r.declividade == null ? '—' : nf.n0.format(r.declividade), 'num'), td(r.manejo ? (codes.manejo[r.manejo] || r.manejo) : '—'),
+            td(r.erosao ? (codes.erosao[r.erosao] || r.erosao) : '—'), td(r.terraceamento ? (codes.terraceamento[r.terraceamento] || r.terraceamento) : '—'),
+            td(r.espacamento_m == null ? '—' : nf.n0.format(r.espacamento_m), 'num'));
+          return tr;
+        }));
+      }
+      if (kind === 'praticas' && pra) {
+        body.replaceChildren.apply(body, pra.filter(function (r) { return r.urt_id === id; }).map(function (r) {
+          var tr = document.createElement('tr'); tr.setAttribute('data-key', String(r.id));
+          tr.append(td(r.pratica, 'nm'), td(r.local), td(String(r.prazo)), td(nf.brl.format(r.valor), 'num'));
+          return tr;
+        }));
+      }
+    });
+  }
+
+  dash.onData(function () {
+    fillMarks();
+    drawCharts();
+    drawMaiores();
+    drawProd();
+    drawUrts();
+    drawPips();
+  });
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var ring=[[-23.70441, -52.65277], [-23.70356, -52.65119], [-23.70199, -52.65038], [-23.69976, -52.64931], [-23.69714, -52.64763], [-23.6946, -52.64619], [-23.69196, -52.64435], [-23.69166, -52.64415], [-23.69012, -52.64315], [-23.68982, -52.64296], [-23.68853, -52.64213], [-23.68666, -52.64123], [-23.68468, -52.64037], [-23.68329, -52.64009], [-23.68123, -52.64013], [-23.681, -52.64014], [-23.67875, -52.64022], [-23.67696, -52.64016], [-23.67488, -52.64004], [-23.67474, -52.64003], [-23.67355, -52.64002], [-23.67221, -52.64], [-23.66964, -52.63997], [-23.66949, -52.63997], [-23.66803, -52.63956], [-23.66649, -52.63914], [-23.66418, -52.63817], [-23.66157, -52.63647], [-23.65967, -52.63476], [-23.65776, -52.63624], [-23.65527, -52.6377], [-23.65233, -52.63924], [-23.64817, -52.64085], [-23.64563, -52.64193], [-23.64545, -52.64201], [-23.64367, -52.64282], [-23.64308, -52.64277], [-23.6426, -52.64272], [-23.6415, -52.64243], [-23.64038, -52.642], [-23.63882, -52.64131], [-23.63778, -52.64095], [-23.63592, -52.64085], [-23.63358, -52.64097], [-23.63099, -52.64109], [-23.62858, -52.64116], [-23.62617, -52.64136], [-23.62565, -52.64141], [-23.62398, -52.64146], [-23.62356, -52.64355], [-23.62298, -52.64555], [-23.62267, -52.64689], [-23.6246, -52.65032], [-23.62681, -52.65344], [-23.62814, -52.65648], [-23.62951, -52.66044], [-23.63181, -52.66261], [-23.63553, -52.66548], [-23.63885, -52.66734], [-23.63963, -52.66796], [-23.64079, -52.66894], [-23.643, -52.67052], [-23.64401, -52.67203], [-23.64502, -52.67381], [-23.64577, -52.67559], [-23.64671, -52.67806], [-23.64908, -52.68022], [-23.65226, -52.68245], [-23.6543, -52.68342], [-23.65565, -52.68493], [-23.65728, -52.68609], [-23.65963, -52.68662], [-23.66138, -52.68758], [-23.66302, -52.68932], [-23.66548, -52.69131], [-23.66796, -52.69261], [-23.67112, -52.69362], [-23.67156, -52.69303], [-23.67217, -52.69224], [-23.67316, -52.69144], [-23.67453, -52.69079], [-23.67571, -52.69039], [-23.6771, -52.68974], [-23.67839, -52.68876], [-23.67933, -52.68749], [-23.67999, -52.68634], [-23.68089, -52.68436], [-23.68104, -52.68397], [-23.68188, -52.68184], [-23.68235, -52.6807], [-23.6828, -52.67969], [-23.68337, -52.67859], [-23.68421, -52.67732], [-23.68491, -52.67652], [-23.68535, -52.67602], [-23.68717, -52.67376], [-23.68879, -52.67165], [-23.69039, -52.66924], [-23.69202, -52.66683], [-23.69351, -52.66496], [-23.69539, -52.66361], [-23.69814, -52.66274], [-23.69964, -52.66231], [-23.70098, -52.66224], [-23.70231, -52.66272], [-23.70324, -52.66185], [-23.7042, -52.66072], [-23.70501, -52.65969], [-23.70572, -52.6587], [-23.70532, -52.65649], [-23.70441, -52.65277]];
+  var map=L.map('mapa-leaflet',{scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+    maxZoom:19,
+    attribution:'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+  }).addTo(map);
+  var poly=L.polygon(ring,{color:'#ffd21f',weight:3,fillColor:'#ffd21f',fillOpacity:0.12}).addTo(map);
+  map.fitBounds(poly.getBounds(),{padding:[20,20]});
+})();
+</script>
+</body></html>
