@@ -1,0 +1,92 @@
+[
+  {
+    "id": "uso-solo",
+    "titulo": "Uso do solo",
+    "imagem": "uso-solo.webp",
+    "legenda": "uso-solo-legenda.webp",
+    "legendaLargura": 3020,
+    "legendaAltura": 1003,
+    "limites": [
+      [
+        -23.7122083,
+        -52.708716
+      ],
+      [
+        -23.6159236,
+        -52.6196549
+      ]
+    ]
+  },
+  {
+    "id": "solos",
+    "titulo": "Tipos de solo",
+    "imagem": "solos.webp",
+    "legenda": "solos-legenda.webp",
+    "legendaLargura": 3020,
+    "legendaAltura": 1003,
+    "limites": [
+      [
+        -23.7122083,
+        -52.708716
+      ],
+      [
+        -23.6159236,
+        -52.6196549
+      ]
+    ]
+  },
+  {
+    "id": "declividade",
+    "titulo": "Declividade",
+    "imagem": "declividade.webp",
+    "legenda": "declividade-legenda.webp",
+    "legendaLargura": 3020,
+    "legendaAltura": 1003,
+    "limites": [
+      [
+        -23.7122083,
+        -52.708716
+      ],
+      [
+        -23.6159236,
+        -52.6196549
+      ]
+    ]
+  },
+  {
+    "id": "altimetria",
+    "titulo": "Altimetria",
+    "imagem": "altimetria.webp",
+    "legenda": "altimetria-legenda.webp",
+    "legendaLargura": 3020,
+    "legendaAltura": 1003,
+    "limites": [
+      [
+        -23.7122083,
+        -52.708716
+      ],
+      [
+        -23.6159236,
+        -52.6196549
+      ]
+    ]
+  },
+  {
+    "id": "car",
+    "titulo": "CAR",
+    "imagem": "car.webp",
+    "legenda": "car-legenda.webp",
+    "legendaLargura": 3020,
+    "legendaAltura": 994,
+    "limites": [
+      [
+        -23.7122083,
+        -52.708716
+      ],
+      [
+        -23.6159236,
+        -52.6196549
+      ]
+    ]
+  }
+]
