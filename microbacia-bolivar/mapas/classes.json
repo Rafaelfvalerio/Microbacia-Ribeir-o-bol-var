@@ -1,0 +1,38 @@
+{
+  "uso-solo": {
+    "mascara": "uso-solo-classes.png",
+    "largura": 3255,
+    "altura": 3842,
+    "n": 9
+  },
+  "solos": {
+    "mascara": "solos-classes.png",
+    "largura": 3255,
+    "altura": 3842,
+    "n": 3
+  },
+  "declividade": {
+    "mascara": "declividade-classes.png",
+    "largura": 3255,
+    "altura": 3842,
+    "n": 6
+  },
+  "altimetria": {
+    "mascara": "altimetria-classes.png",
+    "largura": 3255,
+    "altura": 3842,
+    "n": 3
+  },
+  "car": {
+    "mascara": "car-classes.png",
+    "largura": 3255,
+    "altura": 3842,
+    "n": 4
+  },
+  "ndvi": {
+    "mascara": "ndvi-classes.png",
+    "largura": 2396,
+    "altura": 3668,
+    "n": 7
+  }
+}
