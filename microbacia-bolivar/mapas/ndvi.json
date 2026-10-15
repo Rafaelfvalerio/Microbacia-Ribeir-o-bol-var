@@ -1,0 +1,62 @@
+{
+  "id": "ndvi",
+  "titulo": "NDVI",
+  "imagem": "ndvi.webp",
+  "data": "2026-09-26",
+  "resolucao_m": 10.0,
+  "media": 0.583,
+  "limites": [
+    [
+      -23.7059576,
+      -52.6940636
+    ],
+    [
+      -23.6221712,
+      -52.6342948
+    ]
+  ],
+  "classes": [
+    {
+      "nome": "Sem vegetação",
+      "faixa": "< 0,1",
+      "cor": "#a50026",
+      "pct": 0.61,
+      "ha": 18.92
+    },
+    {
+      "nome": "Solo exposto ou palhada",
+      "faixa": "0,1 a 0,3",
+      "cor": "#f46d43",
+      "pct": 14.03,
+      "ha": 433.89
+    },
+    {
+      "nome": "Vegetação esparsa",
+      "faixa": "0,3 a 0,5",
+      "cor": "#fee08b",
+      "pct": 12.62,
+      "ha": 390.45
+    },
+    {
+      "nome": "Vegetação moderada",
+      "faixa": "0,5 a 0,7",
+      "cor": "#a6d96a",
+      "pct": 40.12,
+      "ha": 1240.87
+    },
+    {
+      "nome": "Vegetação densa",
+      "faixa": "0,7 a 0,9",
+      "cor": "#1a9850",
+      "pct": 32.34,
+      "ha": 1000.3
+    },
+    {
+      "nome": "Vegetação muito densa",
+      "faixa": "> 0,9",
+      "cor": "#006837",
+      "pct": 0.27,
+      "ha": 8.42
+    }
+  ]
+}
