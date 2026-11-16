@@ -1,4 +1,4 @@
-:HL["/Microbacia-Ribeir-o-bol-var/microbacia-bolivar/_next/static/chunks/30hxnoagu-dyu.css","style"]
+:HL["/Microbacia-Ribeir-o-bol-var/microbacia-bolivar/_next/static/chunks/43zv3ue6odjfi.css","style"]
 2:[["children",{"s":"__PAGE__","h":160}]]
 1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
-0:{"b":"s_DA3clgj3Z6FkEyklKfp","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"yU8jpxowi-POtlqNYIvip","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
